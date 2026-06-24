@@ -1,6 +1,8 @@
 import React from 'react';
-import { Navbar, HeroSection, Footer } from './components/WebSections';
-import ArticleSection from './components/WebSections';
+import { Navbar } from './components/WebSections/Navbar';
+import { HeroSection } from './components/WebSections/HeroSection';
+import { Footer } from './components/WebSections/Footer';
+import ArticleSection from './components/WebSections/ArticleSection';
 
 export default function App() {
   return (
