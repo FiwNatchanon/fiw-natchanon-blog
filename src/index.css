@@ -128,3 +128,34 @@
     @apply font-sans;
     }
 }
+
+.markdown h2 {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.markdown p {
+  margin-bottom: 1rem;
+  line-height: 1.75;
+  color: #4b5563;
+}
+
+.markdown ul,
+.markdown ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  color: #4b5563;
+}
+
+.markdown li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+
+.markdown strong {
+  font-weight: 700;
+  color: #222;
+}

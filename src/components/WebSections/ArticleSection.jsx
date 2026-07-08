@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import {
@@ -43,39 +44,39 @@ function getPostsNotYetShown(existingPosts, incomingPosts) {
   return incomingPosts.filter((post) => !existingTitles.has(post.title));
 }
 
-function BlogCard(props) {
+function BlogCard({ id, image, category, title, description, author, date }) {
   return (
     <article className="flex flex-col gap-4">
-      <a href="#" className="relative h-[212px] sm:h-[360px]">
+      <Link to={`/post/${id}`} className="relative h-[212px] sm:h-[360px]">
         <img
           className="w-full h-full object-cover rounded-md"
-          src={props.image}
-          alt={props.title}
+          src={image}
+          alt={title}
         />
-      </a>
+      </Link>
       <div className="flex flex-col">
         <div className="flex">
           <span className="bg-green-200 rounded-full px-3 py-1 text-sm font-semibold text-green-600 mb-2">
-            {props.category}
+            {category}
           </span>
         </div>
-        <a href="#">
+        <Link to={`/post/${id}`}>
           <h2 className="text-start font-bold text-xl mb-2 line-clamp-2 hover:underline">
-            {props.title}
+            {title}
           </h2>
-        </a>
+        </Link>
         <p className="text-muted-foreground text-sm mb-4 grow line-clamp-3">
-          {props.description}
+          {description}
         </p>
         <div className="flex items-center text-sm">
           <img
             className="w-8 h-8 rounded-full mr-2"
             src="https://res.cloudinary.com/dcbpjtd1r/image/upload/v1728449784/my-blog-post/xgfy0xnvyemkklcqodkg.jpg"
-            alt={props.author}
+            alt={author}
           />
-          <span>{props.author}</span>
+          <span>{author}</span>
           <span className="mx-2 text-gray-300">|</span>
-          <span>{props.date}</span>
+          <span>{date}</span>
         </div>
       </div>
     </article>
@@ -267,6 +268,7 @@ export default function ArticleSection() {
           {displayedPosts.map((post) => (
             <BlogCard
               key={post.title}
+              id={post.id}
               image={post.image}
               category={post.category}
               title={post.title}

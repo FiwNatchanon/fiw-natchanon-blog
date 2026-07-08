@@ -1,19 +1,14 @@
-import React from 'react';
-import { Navbar } from './components/WebSections/Navbar';
-import { HeroSection } from './components/WebSections/HeroSection';
-import { Footer } from './components/WebSections/Footer';
-import ArticleSection from './components/WebSections/ArticleSection';
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import ViewPostPage from "./pages/ViewPostPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] font-sans text-gray-900 flex flex-col justify-between">
-      <div className="grow">
-        <Navbar />
-        <HeroSection />
-        <ArticleSection />
-      </div>
-      <Footer />
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/post/:postId" element={<ViewPostPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
-
