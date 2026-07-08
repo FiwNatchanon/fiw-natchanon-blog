@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input"
 import { Search } from 'lucide-react';
 import {
@@ -42,6 +43,12 @@ function BlogCard(props) {
 
 export default function ArticleSection() {
   const categories = ["Highlight", "Cat", "Inspiration", "General"];
+  const [category, setCategory] = useState("Highlight");
+
+  const filteredPosts = blogPosts.filter((post) => {
+    if (category === "Highlight") return true;
+    return post.category === category;
+  });
 
     return (
       <section className="w-full max-w-[1980px] mx-auto px-6 md:px-12 xl:px-20 mt-20">
@@ -50,15 +57,18 @@ export default function ArticleSection() {
         <div className="hidden md:flex bg-[#F4F4F4] rounded-2xl p-3 justify-between items-center gap-4">
           {/* Tabs */}
           <div className="flex space-x-1">
-            {categories.map((item, index) => {
-              const isFirstItem = index === 0;
+            {categories.map((item) => {
+              const isSelected = category === item;
               return (
                 <button 
-                  key={index}
+                  key={item}
+                  type="button"
+                  disabled={isSelected}
+                  onClick={() => setCategory(item)}
                   className={`px-6 py-2 rounded-xl text-sm transition-colors ${
-                    isFirstItem 
-                      ? "bg-[#E2E2E2] text-gray-800 font-semibold" 
-                      : "text-gray-500 hover:text-gray-800 font-medium" 
+                    isSelected
+                      ? "bg-[#E2E2E2] text-gray-800 font-semibold cursor-default" 
+                      : "text-gray-500 hover:bg-white hover:text-gray-800 font-medium" 
                   }`}
                 >
                   {item}
@@ -93,15 +103,15 @@ export default function ArticleSection() {
             <label className="block text-gray-500 font-medium mb-2 text-[15px]">
               Category
             </label>
-            <Select defaultValue={categories[0]}>
+            <Select value={category} onValueChange={setCategory}>
             <SelectTrigger className="w-full bg-white h-auto py-6.5 px-4 rounded-xl border-gray-200 text-base font-medium text-gray-500 shadow-sm focus:ring-2 focus:ring-gray-200">
               <SelectValue /> 
             </SelectTrigger>
             <SelectContent className="rounded-xl w-[--radix-select-trigger-width]">
               <SelectGroup>
-                {categories.map((item, index) => (
+                {categories.map((item) => (
                   <SelectItem 
-                    key={index} 
+                    key={item} 
                     value={item} 
                     className="text-base text-gray-600 rounded-lg py-2 cursor-pointer"
                   >
@@ -115,7 +125,7 @@ export default function ArticleSection() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-16 gap-y-16 mt-16 mb-20">
-        {blogPosts.map((post) => (
+        {filteredPosts.map((post) => (
             <BlogCard
               key={post.id}
               image={post.image}
