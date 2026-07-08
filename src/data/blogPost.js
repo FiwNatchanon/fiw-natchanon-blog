@@ -84,3 +84,54 @@ export const blogPosts = [
         "## 1. Understanding Feline Nutritional Needs\n\nExplore the unique dietary requirements of cats as obligate carnivores.\n\n## 2. Choosing the Right Cat Food\n\nLearn how to read cat food labels and select high-quality options for your pet.\n\n## 3. Wet vs. Dry Food\n\nUnderstand the pros and cons of wet and dry cat food and how to incorporate both into your cat's diet.\n\n## 4. Portion Control and Feeding Schedule\n\nDiscover how to determine the right portion sizes and establish a healthy feeding routine.\n\n## 5. Special Dietary Considerations\n\nLearn about nutrition for cats with specific health conditions or at different life stages.",
     },
   ];
+
+export const extraMockPosts = [
+  {
+    id: 101,
+    image:
+      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80",
+    category: "Cat",
+    title: "Understanding Cat Sleep Patterns: Why Your Cat Naps All Day",
+    description:
+      "Explore the fascinating sleep habits of cats and learn why your furry companion spends so much time resting throughout the day.",
+    author: "Natchanon Y.",
+    date: "2024-10-05T00:00:00.000Z",
+    likes: 88,
+  },
+  {
+    id: 102,
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+    category: "Inspiration",
+    title: "Morning Routines That Set You Up for a Productive Day",
+    description:
+      "Build a simple morning routine that boosts energy, focus, and motivation before your day even begins.",
+    author: "Natchanon Y.",
+    date: "2024-09-18T00:00:00.000Z",
+    likes: 142,
+  },
+  {
+    id: 103,
+    image:
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=800&q=80",
+    category: "General",
+    title: "Digital Wellness: Finding Balance in a Connected World",
+    description:
+      "Practical tips to reduce screen fatigue and create healthier boundaries with technology in everyday life.",
+    author: "Natchanon Y.",
+    date: "2024-08-30T00:00:00.000Z",
+    likes: 67,
+  },
+  {
+    id: 104,
+    image:
+      "https://images.unsplash.com/photo-1574159622686-612ead2a482e?auto=format&fit=crop&w=800&q=80",
+    category: "Cat",
+    title: "Playtime Essentials: Toys Every Cat Owner Should Try",
+    description:
+      "Discover fun and engaging toys that keep indoor cats active, curious, and mentally stimulated.",
+    author: "Natchanon Y.",
+    date: "2024-07-12T00:00:00.000Z",
+    likes: 203,
+  },
+];
