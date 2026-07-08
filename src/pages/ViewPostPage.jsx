@@ -9,9 +9,9 @@ import { Navbar } from "@/components/WebSections/Navbar";
 import { Footer } from "@/components/WebSections/Footer";
 import { LoginRequiredDialog } from "@/components/LoginRequiredDialog";
 import NotFoundPage from "@/pages/NotFoundPage";
+import { useAuth } from "@/context/AuthContext";
 
 const API_BASE_URL = "https://blog-post-project-api.vercel.app";
-const isLoggedIn = false;
 
 function formatDate(isoDate) {
   return new Date(isoDate).toLocaleDateString("en-GB", {
@@ -23,6 +23,7 @@ function formatDate(isoDate) {
 
 export default function ViewPostPage() {
   const { postId } = useParams();
+  const { isLoggedIn } = useAuth();
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -57,11 +58,15 @@ export default function ViewPostPage() {
   };
 
   const handleLike = () => {
-    requireLogin();
+    if (requireLogin()) return;
+    toast.success("Thanks for your like!");
   };
 
   const handleSendComment = () => {
     if (requireLogin()) return;
+    if (!comment.trim()) return;
+    toast.success("Comment sent!");
+    setComment("");
   };
 
   const handleCopyLink = async () => {

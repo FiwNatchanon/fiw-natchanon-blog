@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -20,20 +21,22 @@ export function LoginRequiredDialog({ open, onOpenChange }) {
         <AlertDialogTitle className="text-center text-2xl font-semibold text-[#222] mb-6">
           Create an account to continue
         </AlertDialogTitle>
-        <button
-          type="button"
-          className="mb-4 w-full rounded-full bg-[#2A2A2A] py-3 text-sm font-medium text-white hover:bg-black transition-colors"
+        <Link
+          to="/signup"
+          onClick={() => onOpenChange(false)}
+          className="mb-4 block w-full rounded-full bg-[#2A2A2A] py-3 text-center text-sm font-medium text-white hover:bg-black transition-colors"
         >
           Create account
-        </button>
+        </Link>
         <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <button
-            type="button"
+          <Link
+            to="/login"
+            onClick={() => onOpenChange(false)}
             className="font-semibold text-[#222] underline underline-offset-2"
           >
             Log in
-          </button>
+          </Link>
         </p>
       </AlertDialogContent>
     </AlertDialog>
