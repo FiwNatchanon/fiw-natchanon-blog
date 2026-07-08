@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 import { Smile, Copy } from "lucide-react";
 import { FaFacebook, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { Navbar } from "@/components/WebSections/Navbar";
@@ -66,6 +67,7 @@ export default function ViewPostPage() {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
+      toast.success("Copied! This article has been copied to your clipboard.");
     } catch (error) {
       console.error(error);
     }
@@ -156,7 +158,7 @@ export default function ViewPostPage() {
                     <FaLinkedin size={16} />
                   </a>
                   <a
-                    href={`https://twitter.com/intent/tweet?url=${shareUrl}`}
+                    href={`https://www.twitter.com/share?url=${shareUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Share on Twitter"
