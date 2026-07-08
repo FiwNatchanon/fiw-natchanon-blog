@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FaLinkedin, FaGithub, FaGoogle } from 'react-icons/fa'; 
 
 export function Footer() {
@@ -21,9 +22,9 @@ export function Footer() {
       </div>
 
       <div className="mt-6 md:mt-0">
-        <a href="#" className="text-sm font-semibold text-gray-800 underline decoration-1 underline-offset-4 hover:text-black">
+        <Link to="/" className="text-sm font-semibold text-gray-800 underline decoration-1 underline-offset-4 hover:text-black">
           Home page
-        </a>
+        </Link>
       </div>
     </footer>
   );
