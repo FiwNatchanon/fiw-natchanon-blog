@@ -13,12 +13,21 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prevForm) => ({ ...prevForm, [name]: value }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  function handleChange(event) {
+    const fieldName = event.target.name;
+    const fieldValue = event.target.value;
+
+    setForm({
+      ...form,
+      [fieldName]: fieldValue,
+    });
+
+    setErrors({
+      ...errors,
+      [fieldName]: "",
+    });
     setFormError("");
-  };
+  }
 
   const validateForm = () => {
     const nextErrors = {};

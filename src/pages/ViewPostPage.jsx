@@ -10,16 +10,9 @@ import { Footer } from "@/components/WebSections/Footer";
 import { LoginRequiredDialog } from "@/components/LoginRequiredDialog";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/utils/blogHelpers";
 
-const API_BASE_URL = "https://blog-post-project-api.vercel.app";
-
-function formatDate(isoDate) {
-  return new Date(isoDate).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
+const API_URL = "https://blog-post-project-api.vercel.app/posts";
 
 export default function ViewPostPage() {
   const { postId } = useParams();
@@ -36,8 +29,8 @@ export default function ViewPostPage() {
       setNotFound(false);
 
       try {
-        const { data } = await axios.get(`${API_BASE_URL}/posts/${postId}`);
-        setPost(data);
+        const response = await axios.get(`${API_URL}/${postId}`);
+        setPost(response.data);
       } catch (error) {
         console.error(error);
         setNotFound(true);
@@ -49,25 +42,25 @@ export default function ViewPostPage() {
     fetchPost();
   }, [postId]);
 
-  const requireLogin = () => {
+  function handleLike() {
     if (!isLoggedIn) {
       setShowLoginDialog(true);
-      return true;
+      return;
     }
-    return false;
-  };
-
-  const handleLike = () => {
-    if (requireLogin()) return;
     toast.success("Thanks for your like!");
-  };
+  }
 
-  const handleSendComment = () => {
-    if (requireLogin()) return;
-    if (!comment.trim()) return;
+  function handleSendComment() {
+    if (!isLoggedIn) {
+      setShowLoginDialog(true);
+      return;
+    }
+    if (comment.trim() === "") {
+      return;
+    }
     toast.success("Comment sent!");
     setComment("");
-  };
+  }
 
   const handleCopyLink = async () => {
     try {

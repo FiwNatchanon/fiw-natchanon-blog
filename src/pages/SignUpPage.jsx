@@ -19,11 +19,20 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prevForm) => ({ ...prevForm, [name]: value }));
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
-  };
+  function handleChange(event) {
+    const fieldName = event.target.name;
+    const fieldValue = event.target.value;
+
+    setForm({
+      ...form,
+      [fieldName]: fieldValue,
+    });
+
+    setErrors({
+      ...errors,
+      [fieldName]: "",
+    });
+  }
 
   const validateForm = () => {
     const nextErrors = {};

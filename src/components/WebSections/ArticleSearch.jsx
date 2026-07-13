@@ -3,18 +3,9 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { removeDuplicatePosts } from "@/utils/blogHelpers";
 
-const API_BASE_URL = "https://blog-post-project-api.vercel.app";
-
-function getUniquePosts(postList) {
-  const seenTitles = new Set();
-
-  return postList.filter((post) => {
-    if (seenTitles.has(post.title)) return false;
-    seenTitles.add(post.title);
-    return true;
-  });
-}
+const API_URL = "https://blog-post-project-api.vercel.app/posts";
 
 export default function ArticleSearch({ category, inputClassName, iconSize = 18 }) {
   const [keyword, setKeyword] = useState("");
@@ -22,24 +13,31 @@ export default function ArticleSearch({ category, inputClassName, iconSize = 18 
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // ค้นหาเมื่อ keyword หรือ category เปลี่ยน
   useEffect(() => {
-    if (!keyword.trim()) {
+    if (keyword.trim() === "") {
       setSearchResults([]);
       setShowDropdown(false);
       return;
     }
 
-    const timeoutId = setTimeout(async () => {
+    async function searchPosts() {
       setIsSearching(true);
 
       try {
-        const params = { keyword: keyword.trim(), limit: 6 };
+        const params = {
+          keyword: keyword.trim(),
+          limit: 6,
+        };
+
         if (category !== "Highlight") {
           params.category = category;
         }
 
-        const { data } = await axios.get(`${API_BASE_URL}/posts`, { params });
-        setSearchResults(getUniquePosts(data.posts));
+        const response = await axios.get(API_URL, { params });
+        const uniqueResults = removeDuplicatePosts(response.data.posts);
+
+        setSearchResults(uniqueResults);
         setShowDropdown(true);
       } catch (error) {
         console.error(error);
@@ -47,25 +45,35 @@ export default function ArticleSearch({ category, inputClassName, iconSize = 18 
       } finally {
         setIsSearching(false);
       }
-    }, 300);
+    }
 
-    return () => clearTimeout(timeoutId);
+    searchPosts();
   }, [keyword, category]);
 
-  const handleSelectResult = () => {
+  function handleKeywordChange(event) {
+    setKeyword(event.target.value);
+  }
+
+  function handleSelectResult() {
     setKeyword("");
     setShowDropdown(false);
     setSearchResults([]);
-  };
+  }
 
   return (
     <div className="relative w-full">
       <Input
         placeholder="Search"
         value={keyword}
-        onChange={(event) => setKeyword(event.target.value)}
-        onFocus={() => keyword.trim() && setShowDropdown(true)}
-        onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+        onChange={handleKeywordChange}
+        onFocus={() => {
+          if (keyword.trim() !== "") {
+            setShowDropdown(true);
+          }
+        }}
+        onBlur={() => {
+          setTimeout(() => setShowDropdown(false), 150);
+        }}
         className={inputClassName}
       />
       <Search
@@ -73,11 +81,17 @@ export default function ArticleSearch({ category, inputClassName, iconSize = 18 
         size={iconSize}
       />
 
-      {showDropdown && keyword.trim() && (
+      {showDropdown && keyword.trim() !== "" && (
         <ul className="absolute top-full left-0 right-0 z-20 mt-2 max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg">
-          {isSearching ? (
+          {isSearching && (
             <li className="px-4 py-3 text-sm text-gray-500">Loading...</li>
-          ) : searchResults.length > 0 ? (
+          )}
+
+          {!isSearching && searchResults.length === 0 && (
+            <li className="px-4 py-3 text-sm text-gray-500">No results found</li>
+          )}
+
+          {!isSearching &&
             searchResults.map((post) => (
               <li key={post.id}>
                 <Link
@@ -88,10 +102,7 @@ export default function ArticleSearch({ category, inputClassName, iconSize = 18 
                   {post.title}
                 </Link>
               </li>
-            ))
-          ) : (
-            <li className="px-4 py-3 text-sm text-gray-500">No results found</li>
-          )}
+            ))}
         </ul>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   clearAuthSession,
   getAuthSession,
@@ -11,33 +11,38 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
+  // โหลด session จาก localStorage ตอนเปิดเว็บ
   useEffect(() => {
-    setUser(getAuthSession());
+    const savedUser = getAuthSession();
+    setUser(savedUser);
   }, []);
 
-  const value = useMemo(
-    () => ({
-      user,
-      isLoggedIn: Boolean(user),
-      register: registerUser,
-      login: (email, password) => {
-        const result = loginUser(email, password);
+  function handleLogin(email, password) {
+    const result = loginUser(email, password);
 
-        if (result.success) {
-          setUser(getAuthSession());
-        }
+    if (result.success) {
+      setUser(getAuthSession());
+    }
 
-        return result;
-      },
-      logout: () => {
-        clearAuthSession();
-        setUser(null);
-      },
-    }),
-    [user]
+    return result;
+  }
+
+  function handleLogout() {
+    clearAuthSession();
+    setUser(null);
+  }
+
+  const authValue = {
+    user: user,
+    isLoggedIn: user !== null,
+    register: registerUser,
+    login: handleLogin,
+    logout: handleLogout,
+  };
+
+  return (
+    <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
   );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
