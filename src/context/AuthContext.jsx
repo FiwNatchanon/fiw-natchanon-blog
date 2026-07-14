@@ -4,6 +4,8 @@ import {
   getAuthSession,
   loginUser,
   registerUser,
+  updateUserPassword,
+  updateUserProfile,
 } from "@/lib/authStorage";
 
 const AuthContext = createContext(null);
@@ -32,12 +34,36 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  function handleUpdateProfile(profileData) {
+    if (!user) {
+      return { error: "Not logged in." };
+    }
+
+    const result = updateUserProfile(user.email, profileData);
+
+    if (result.success) {
+      setUser(getAuthSession());
+    }
+
+    return result;
+  }
+
+  function handleUpdatePassword(currentPassword, newPassword) {
+    if (!user) {
+      return { error: "Not logged in." };
+    }
+
+    return updateUserPassword(user.email, currentPassword, newPassword);
+  }
+
   const authValue = {
     user: user,
     isLoggedIn: user !== null,
     register: registerUser,
     login: handleLogin,
     logout: handleLogout,
+    updateProfile: handleUpdateProfile,
+    updatePassword: handleUpdatePassword,
   };
 
   return (

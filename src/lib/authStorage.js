@@ -60,7 +60,77 @@ export function loginUser(email, password) {
     name: matchedUser.name,
     username: matchedUser.username,
     email: matchedUser.email,
+    profilePicture: matchedUser.profilePicture || "",
   });
 
   return { success: true, user: matchedUser };
+}
+
+export function updateUserProfile(
+  currentEmail,
+  { name, username, email, profilePicture }
+) {
+  const users = getRegisteredUsers();
+  const userIndex = users.findIndex((user) => user.email === currentEmail);
+
+  if (userIndex === -1) {
+    return { error: "User not found." };
+  }
+
+  if (email !== currentEmail && users.some((user) => user.email === email)) {
+    return {
+      error: "email",
+      message: "Email is already taken, Please try another email.",
+    };
+  }
+
+  if (
+    users.some(
+      (user) => user.username === username && user.email !== currentEmail
+    )
+  ) {
+    return {
+      error: "username",
+      message: "Username is already taken, Please try another username.",
+    };
+  }
+
+  users[userIndex] = {
+    ...users[userIndex],
+    name,
+    username,
+    email,
+    profilePicture: profilePicture || "",
+  };
+  saveRegisteredUsers(users);
+
+  saveAuthSession({
+    name,
+    username,
+    email,
+    profilePicture: profilePicture || "",
+  });
+
+  return { success: true };
+}
+
+export function updateUserPassword(email, currentPassword, newPassword) {
+  const users = getRegisteredUsers();
+  const userIndex = users.findIndex((user) => user.email === email);
+
+  if (userIndex === -1) {
+    return { error: "User not found." };
+  }
+
+  if (users[userIndex].password !== currentPassword) {
+    return {
+      error: "currentPassword",
+      message: "Your current password is incorrect.",
+    };
+  }
+
+  users[userIndex].password = newPassword;
+  saveRegisteredUsers(users);
+
+  return { success: true };
 }
