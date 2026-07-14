@@ -13,7 +13,8 @@ export default function NotificationBell() {
   const hasUnread = notifications.length > 0;
 
   function handleOpenChange(isOpen) {
-    if (isOpen) {
+    // ล้างแจ้งเตือนหลังจากผู้ใช้ปิด dropdown (ไม่ใช่ตอนเปิด)
+    if (!isOpen) {
       setNotifications([]);
     }
   }

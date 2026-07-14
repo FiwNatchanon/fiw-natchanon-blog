@@ -6,6 +6,13 @@ import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AdminArticleListPage from "./pages/admin/AdminArticleListPage";
+import AdminArticleFormPage from "./pages/admin/AdminArticleFormPage";
+import AdminCategoryListPage from "./pages/admin/AdminCategoryListPage";
+import AdminCategoryFormPage from "./pages/admin/AdminCategoryFormPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
+import AdminNotificationPage from "./pages/admin/AdminNotificationPage";
+import AdminResetPasswordPage from "./pages/admin/AdminResetPasswordPage";
 
 export default function App() {
   return (
@@ -16,6 +23,15 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/admin" element={<AdminArticleListPage />} />
+      <Route path="/admin/create-article" element={<AdminArticleFormPage />} />
+      <Route path="/admin/edit-article/:articleId" element={<AdminArticleFormPage />} />
+      <Route path="/admin/category" element={<AdminCategoryListPage />} />
+      <Route path="/admin/create-category" element={<AdminCategoryFormPage />} />
+      <Route path="/admin/edit-category/:categoryId" element={<AdminCategoryFormPage />} />
+      <Route path="/admin/profile" element={<AdminProfilePage />} />
+      <Route path="/admin/notification" element={<AdminNotificationPage />} />
+      <Route path="/admin/reset-password" element={<AdminResetPasswordPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
