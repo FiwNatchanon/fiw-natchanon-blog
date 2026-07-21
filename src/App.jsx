@@ -13,6 +13,7 @@ import AdminCategoryFormPage from "./pages/admin/AdminCategoryFormPage";
 import AdminProfilePage from "./pages/admin/AdminProfilePage";
 import AdminNotificationPage from "./pages/admin/AdminNotificationPage";
 import AdminResetPasswordPage from "./pages/admin/AdminResetPasswordPage";
+import HealthTestPage from "./pages/HealthTestPage";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/test-health" element={<HealthTestPage />} />
       <Route path="/admin" element={<AdminArticleListPage />} />
       <Route path="/admin/create-article" element={<AdminArticleFormPage />} />
       <Route path="/admin/edit-article/:articleId" element={<AdminArticleFormPage />} />
