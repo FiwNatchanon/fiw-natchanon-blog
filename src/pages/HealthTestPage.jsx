@@ -15,6 +15,11 @@ const testHealth = async () => {
 
     try {
     const res = await axios.get(`${API_BASE_URL}/health`);
+    if (typeof res.data === "string" && res.data.includes("<!doctype html")) {
+        throw new Error(
+        "Received HTML instead of JSON. Check VITE_API_BASE_URL — it may point to the frontend, not the backend."
+        );
+    }
     setResult(res.data);
     } catch (err) {
     setError({
@@ -30,6 +35,7 @@ const testHealth = async () => {
 return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 text-white px-6">
     <h1 className="text-4xl font-bold mb-6">Health Test</h1>
+    <p className="text-slate-400 mb-4 text-sm">API: {API_BASE_URL}/health</p>
 
     <div className="bg-slate-800 rounded-xl p-6 text-center shadow-lg mb-6 w-full max-w-2xl">
         <button
