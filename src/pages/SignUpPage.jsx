@@ -17,6 +17,7 @@ export default function SignUpPage() {
   const { register, loading } = useAuth();
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
   function handleChange(event) {
@@ -32,6 +33,7 @@ export default function SignUpPage() {
       ...errors,
       [fieldName]: "",
     });
+    setFormError("");
   }
 
   const validateForm = () => {
@@ -63,16 +65,19 @@ export default function SignUpPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setFormError("");
 
     if (!validateForm()) return;
 
     const result = await register(form);
- 
+
     if (result?.error) {
-      if (result.error === "email" || result.error === "username") {
-        setErrors({ [result.error]: result.message });
+      if (result.error === "email") {
+        setErrors({ email: result.message });
+      } else if (result.error === "username") {
+        setErrors({ username: result.message });
       } else {
-        setErrors({ email: result.message || "Registration failed" });
+        setFormError(result.message || "Registration failed. Please try again.");
       }
       return;
     }
@@ -101,6 +106,8 @@ export default function SignUpPage() {
               <p className="auth-subtitle">Create your account to join the community.</p>
 
               <form className="auth-form" onSubmit={handleSubmit} noValidate>
+                {formError && <p className="auth-form-error">{formError}</p>}
+
                 <div className="auth-field">
                   <label className="auth-label" htmlFor="name">
                     Name

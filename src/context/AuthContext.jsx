@@ -1,271 +1,165 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { jwtDecode, isTokenExpired } from "@/lib/jwtDecode";
 import {
   clearAuthSession,
   getAuthSession,
-  saveAuthSession,
+  loginUser,
+  registerUser,
   updateUserPassword as updateUserPasswordStorage,
   updateUserProfile as updateUserProfileStorage,
 } from "@/lib/authStorage";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
-
 const AuthContext = createContext(null);
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
 
 export function AuthProvider({ children }) {
-  const [state, setState] = useState({
-    user: null,
-    loading: true,
-    error: null,
-  });
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem("access_token") || "");
+  const [loading, setLoading] = useState(false);
 
-  const fetchUser = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token || isTokenExpired(token)) {
-      if (token) {
-        localStorage.removeItem("token");
-        delete axios.defaults.headers.common["Authorization"];
-        clearAuthSession();
-      }
-      setState({
-        user: null,
-        loading: false,
-        error: null,
-      });
-      return null;
-    }
-
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-    try {
-      const decodedUser = jwtDecode(token);
-      const savedUser = getAuthSession();
-      const activeUser = decodedUser
-        ? { ...savedUser, ...decodedUser }
-        : savedUser;
-
-      setState({
-        user: activeUser,
-        loading: false,
-        error: null,
-      });
-      return activeUser;
-    } catch {
-      setState({
-        user: null,
-        loading: false,
-        error: null,
-      });
-      return null;
-    }
-  };
-
+  // Restore session from Backend or LocalStorage on app load
   useEffect(() => {
-    fetchUser();
+    async function restoreSession() {
+      const savedToken = localStorage.getItem("access_token");
+      if (savedToken) {
+        try {
+          const res = await axios.get(`${SERVER_URL}/auth/get-user`, {
+            headers: { Authorization: `Bearer ${savedToken}` },
+          });
+          if (res.data) {
+            setUser(res.data);
+            setToken(savedToken);
+            return;
+          }
+        } catch (err) {
+          console.warn("Backend token verification failed:", err);
+          localStorage.removeItem("access_token");
+        }
+      }
+
+      const savedUser = getAuthSession();
+      setUser(savedUser);
+    }
+
+    restoreSession();
   }, []);
 
-  const login = async (emailOrData, password) => {
-    let loginPayload;
-    if (typeof emailOrData === "object" && emailOrData !== null) {
-      loginPayload = emailOrData;
-    } else {
-      loginPayload = { email: emailOrData, password };
-    }
-
+  async function handleRegister(userData) {
     try {
-      setState((prevState) => ({ ...prevState, loading: true, error: null }));
-
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/login`,
-        loginPayload
-      );
-
-      const token =
-        response.data.access_token ||
-        response.data.accessToken ||
-        response.data.token;
-
-      if (token) {
-        localStorage.setItem("token", token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setLoading(true);
+      const res = await axios.post(`${SERVER_URL}/auth/register`, userData);
+      setLoading(false);
+      if (res.status === 201) {
+        return { success: true };
       }
-
-      const decoded = token ? jwtDecode(token) : null;
-      const userData =
-        response.data.user ||
-        decoded || {
-          email: loginPayload.email,
-          name: loginPayload.email?.split("@")[0] || "User",
-        };
-
-      saveAuthSession(userData);
-
-      setState({
-        user: userData,
-        loading: false,
-        error: null,
-      });
-
-      return { success: true, user: userData, token };
-    } catch (error) {
-      const errorMsg =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Login failed. Please check your credentials.";
-
-      setState((prevState) => ({
-        ...prevState,
-        loading: false,
-        error: errorMsg,
-      }));
-
-      return { error: errorMsg };
-    }
-  };
-
-  const register = async (data) => {
-    try {
-      setState((prevState) => ({ ...prevState, loading: true, error: null }));
-
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/register`,
-        data
-      );
-
-      setState((prevState) => ({ ...prevState, loading: false, error: null }));
-
-      return { success: true, data: response.data };
-    } catch (error) {
-      const errorData = error.response?.data;
-      const errorMsg =
-        errorData?.message || errorData?.error || "Registration failed";
-
-      setState((prevState) => ({
-        ...prevState,
-        loading: false,
-        error: errorMsg,
-      }));
-
-      if (typeof errorData?.error === "string" && errorData?.message) {
-        return { error: errorData.error, message: errorData.message };
+    } catch (err) {
+      setLoading(false);
+      const errorMsg = err.response?.data?.error || err.message || "Registration failed";
+      
+      if (errorMsg.toLowerCase().includes("username")) {
+        return { error: "username", message: errorMsg };
+      }
+      if (errorMsg.toLowerCase().includes("email")) {
+        return { error: "email", message: errorMsg };
+      }
+      
+      // Try local storage registration fallback if backend is offline / unreachable
+      if (!err.response) {
+        return registerUser(userData);
       }
 
       return { error: "general", message: errorMsg };
     }
-  };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    delete axios.defaults.headers.common["Authorization"];
+    return registerUser(userData);
+  }
+
+  async function handleLogin(email, password) {
+    try {
+      setLoading(true);
+      const res = await axios.post(`${SERVER_URL}/auth/login`, { email, password });
+      if (res.data?.access_token) {
+        const accessToken = res.data.access_token;
+        localStorage.setItem("access_token", accessToken);
+        setToken(accessToken);
+
+        const userRes = await axios.get(`${SERVER_URL}/auth/get-user`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        setUser(userRes.data);
+        setLoading(false);
+        return { success: true, user: userRes.data };
+      }
+    } catch (err) {
+      setLoading(false);
+      const errorMsg = err.response?.data?.error || "Your password is incorrect or this email doesn't exist";
+      return { error: errorMsg };
+    }
+
+    const result = loginUser(email, password);
+    if (result.success) {
+      setUser(getAuthSession());
+    }
+    setLoading(false);
+    return result;
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("access_token");
     clearAuthSession();
-    setState({
-      user: null,
-      loading: false,
-      error: null,
-    });
-  };
+    setUser(null);
+    setToken("");
+  }
 
-  const updateProfile = async (profileData) => {
-    if (!state.user) {
+  async function handleUpdateProfile(profileData) {
+    if (!user) {
       return { error: "Not logged in." };
     }
 
-    try {
-      setState((prevState) => ({ ...prevState, loading: true }));
-      const token = localStorage.getItem("token");
-
-      if (token) {
-        try {
-          const res = await axios.put(
-            `${API_BASE_URL}/user/profile`,
-            profileData,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const updatedUser =
-            res.data.user || { ...state.user, ...profileData };
-          saveAuthSession(updatedUser);
-          setState({ user: updatedUser, loading: false, error: null });
-          return { success: true, user: updatedUser };
-        } catch {
-          // Fallback to local storage update if backend profile endpoint is unavailable
-        }
-      }
-
-      const result = updateUserProfileStorage(
-        state.user.email,
-        profileData
-      );
-
-      if (result.success) {
-        const updatedUser = getAuthSession();
-        setState({ user: updatedUser, loading: false, error: null });
-      } else {
-        setState((prevState) => ({ ...prevState, loading: false }));
-      }
-
-      return result;
-    } catch (err) {
-      setState((prevState) => ({ ...prevState, loading: false }));
-      return { error: err.message };
+    const result = updateUserProfileStorage(user.email, profileData);
+    if (result.success) {
+      setUser(getAuthSession());
     }
-  };
+    return result;
+  }
 
-  const updatePassword = async (currentPassword, newPassword) => {
-    if (!state.user) {
+  async function handleUpdatePassword(currentPassword, newPassword) {
+    if (!user) {
       return { error: "Not logged in." };
     }
 
-    try {
-      const token = localStorage.getItem("token");
-
-      if (token) {
-        try {
-          await axios.put(
-            `${API_BASE_URL}/user/password`,
-            { currentPassword, newPassword },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+    const savedToken = localStorage.getItem("access_token");
+    if (savedToken) {
+      try {
+        const res = await axios.put(
+          `${SERVER_URL}/auth/reset-password`,
+          { oldPassword: currentPassword, newPassword },
+          { headers: { Authorization: `Bearer ${savedToken}` } }
+        );
+        if (res.status === 200) {
           return { success: true };
-        } catch (err) {
-          if (err.response?.data?.message) {
-            return {
-              error: "currentPassword",
-              message: err.response.data.message,
-            };
-          }
+        }
+      } catch (err) {
+        if (err.response?.data?.error) {
+          return { error: "currentPassword", message: err.response.data.error };
         }
       }
-
-      return updateUserPasswordStorage(
-        state.user.email,
-        currentPassword,
-        newPassword
-      );
-    } catch (err) {
-      return { error: err.message };
     }
-  };
+
+    return updateUserPasswordStorage(user.email, currentPassword, newPassword);
+  }
 
   const authValue = {
-    state,
-    user: state.user,
-    loading: state.loading,
-    error: state.error,
-    isLoggedIn: Boolean(state.user),
-    isAuthenticated: Boolean(state.user),
-    fetchUser,
-    getUser: fetchUser,
-    register,
-    login,
-    logout,
-    updateProfile,
-    updatePassword,
+    user,
+    token,
+    loading,
+    isLoggedIn: user !== null,
+    register: handleRegister,
+    login: handleLogin,
+    logout: handleLogout,
+    updateProfile: handleUpdateProfile,
+    updatePassword: handleUpdatePassword,
   };
 
   return (
