@@ -10,14 +10,14 @@ export function HeroSection() {
               <h1 className="text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6 text-[#222]">
                 Stay<br /> Informed,<br />Stay Inspired
               </h1>
-              <p className="text-gray-500 max-w-[300px] text-lg font-medium leading-relaxed">
+              <p className="text-gray-500 max-w-75 text-lg font-medium leading-relaxed">
                 Discover a World of Knowledge at Your Fingertips. Your Daily Dose of Inspiration and Information.
               </p>
             </div>
   
             {/* Center: Image */}
             <div className="flex justify-center">
-              <div className="w-full max-w-[340px] h-[480px] rounded-4xl overflow-hidden shadow-sm">
+              <div className="w-full max-w-85 h-120 rounded-4xl overflow-hidden shadow-sm">
                 <img 
                   src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
                   alt="Author with cat in autumn forest" 

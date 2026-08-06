@@ -10,7 +10,7 @@ import {
 } from "@/lib/authStorage";
 
 const AuthContext = createContext(null);
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
+const SERVER_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
