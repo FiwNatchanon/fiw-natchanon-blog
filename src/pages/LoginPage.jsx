@@ -8,7 +8,7 @@ import "@/styles/auth.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState("");
@@ -46,13 +46,13 @@ export default function LoginPage() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setFormError("");
 
     if (!validateForm()) return;
 
-    const result = login(form.email, form.password);
+    const result = await login(form.email, form.password);
 
     if (result.error) {
       setFormError(result.error);
@@ -107,8 +107,8 @@ export default function LoginPage() {
               )}
             </div>
 
-            <button type="submit" className="auth-submit">
-              Log in
+            <button type="submit" className="auth-submit" disabled={loading}>
+              {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
 

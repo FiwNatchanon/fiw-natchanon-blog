@@ -14,7 +14,7 @@ const initialForm = {
 };
 
 export default function SignUpPage() {
-  const { register } = useAuth();
+  const { register, loading } = useAuth();
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
   const [isSuccess, setIsSuccess] = useState(false);
@@ -61,15 +61,19 @@ export default function SignUpPage() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
 
-    const result = register(form);
-
-    if (result.error) {
-      setErrors({ [result.error]: result.message });
+    const result = await register(form);
+ 
+    if (result?.error) {
+      if (result.error === "email" || result.error === "username") {
+        setErrors({ [result.error]: result.message });
+      } else {
+        setErrors({ email: result.message || "Registration failed" });
+      }
       return;
     }
 
@@ -165,8 +169,8 @@ export default function SignUpPage() {
                   )}
                 </div>
 
-                <button type="submit" className="auth-submit">
-                  Sign up
+                <button type="submit" className="auth-submit" disabled={loading}>
+                  {loading ? "Signing up..." : "Sign up"}
                 </button>
               </form>
 
