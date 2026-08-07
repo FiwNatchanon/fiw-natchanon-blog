@@ -9,10 +9,12 @@ const sizeMap = {
 export default function UserAvatar({ user, size = "sm", className = "" }) {
   const { box, icon } = sizeMap[size] || sizeMap.sm;
 
-  if (user?.profilePicture) {
+  const avatarSrc = user?.profilePicture || user?.profilePic;
+
+  if (avatarSrc) {
     return (
       <img
-        src={user.profilePicture}
+        src={avatarSrc}
         alt={user.name || "User profile"}
         className={`rounded-full object-cover ${box} ${className}`}
       />
