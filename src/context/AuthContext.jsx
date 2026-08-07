@@ -112,9 +112,42 @@ export function AuthProvider({ children }) {
     setToken("");
   }
 
-  async function handleUpdateProfile(profileData) {
+  async function handleUpdateProfile(profileData, avatarFile = null) {
     if (!user) {
       return { error: "Not logged in." };
+    }
+
+    const savedToken = localStorage.getItem("access_token");
+    if (savedToken) {
+      try {
+        const formData = new FormData();
+        formData.append("name", profileData.name);
+        formData.append("username", profileData.username);
+        if (avatarFile) {
+          formData.append("avatar", avatarFile);
+        }
+
+        const res = await axios.put(`${SERVER_URL}/profiles`, formData, {
+          headers: {
+            Authorization: `Bearer ${savedToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (res.data?.user) {
+          setUser(res.data.user);
+          return { success: true, user: res.data.user };
+        }
+      } catch (err) {
+        console.error("Backend profile update failed:", err);
+        const errorMsg = err.response?.data?.error || err.message;
+        if (errorMsg?.toLowerCase().includes("username")) {
+          return { error: "username", message: errorMsg };
+        }
+        if (errorMsg?.toLowerCase().includes("email")) {
+          return { error: "email", message: errorMsg };
+        }
+      }
     }
 
     const result = updateUserProfileStorage(user.email, profileData);

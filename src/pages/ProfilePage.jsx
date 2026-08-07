@@ -15,15 +15,16 @@ export default function ProfilePage() {
     email: "",
     profilePicture: "",
   });
+  const [selectedFile, setSelectedFile] = useState(null);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (user) {
       setForm({
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        profilePicture: user.profilePicture || "",
+        name: user.name || "",
+        username: user.username || "",
+        email: user.email || "",
+        profilePicture: user.profilePicture || user.profilePic || "",
       });
     }
   }, [user]);
@@ -53,6 +54,8 @@ export default function ProfilePage() {
     if (!file) {
       return;
     }
+
+    setSelectedFile(file);
 
     const reader = new FileReader();
 
@@ -87,21 +90,22 @@ export default function ProfilePage() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    const result = updateProfile(form);
+    const result = await updateProfile(form, selectedFile);
 
-    if (result.error === "email" || result.error === "username") {
+    if (result?.error === "email" || result?.error === "username") {
       setErrors({ [result.error]: result.message });
       return;
     }
 
-    if (result.error) {
+    if (result?.error) {
+      toast.error("Failed to save profile: " + (result.message || result.error));
       return;
     }
 
